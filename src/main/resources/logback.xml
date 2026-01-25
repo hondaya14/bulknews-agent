@@ -9,6 +9,6 @@
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="com.bulknews" level="INFO" />
+    <logger name="co.hondaya" level="INFO" />
     <logger name="io.ktor" level="INFO" />
 </configuration>

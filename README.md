@@ -168,7 +168,7 @@ The agent generates markdown files with the following structure:
 bulknews-agent/
 ├── src/
 │   ├── main/
-│   │   ├── kotlin/com/bulknews/agent/
+│   │   ├── kotlin/co/hondaya/agent/
 │   │   │   ├── Main.kt                    # Application entry point
 │   │   │   ├── client/
 │   │   │   │   └── GeminiClient.kt        # Gemini API client
