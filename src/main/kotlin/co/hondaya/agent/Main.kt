@@ -1,10 +1,10 @@
-package com.bulknews.agent
+package co.hondaya.agent
 
-import com.bulknews.agent.client.GeminiClient
-import com.bulknews.agent.config.AppConfig
-import com.bulknews.agent.output.MarkdownGenerator
-import com.bulknews.agent.service.DeploymentServiceFactory
-import com.bulknews.agent.service.NewsCollectionService
+import co.hondaya.agent.client.GeminiClient
+import co.hondaya.agent.config.AppConfig
+import co.hondaya.agent.output.MarkdownGenerator
+import co.hondaya.agent.service.DeploymentServiceFactory
+import co.hondaya.agent.service.NewsCollectionService
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 

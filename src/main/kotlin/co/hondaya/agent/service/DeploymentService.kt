@@ -1,4 +1,4 @@
-package com.bulknews.agent.service
+package co.hondaya.agent.service
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.PutObjectRequest
@@ -27,7 +27,7 @@ class S3DeploymentService(
             val request = PutObjectRequest {
                 bucket = bucketName
                 key = fileName
-                body = ByteStream.fromFile(file)
+                body = ByteStream.fromBytes(file.readBytes())
                 contentType = "text/markdown"
             }
             

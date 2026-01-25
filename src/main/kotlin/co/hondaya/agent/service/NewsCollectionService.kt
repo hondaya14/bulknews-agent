@@ -1,8 +1,8 @@
-package com.bulknews.agent.service
+package co.hondaya.agent.service
 
-import com.bulknews.agent.client.GeminiClient
-import com.bulknews.agent.model.NewsArticle
-import com.bulknews.agent.model.NewsCollection
+import co.hondaya.agent.client.GeminiClient
+import co.hondaya.agent.model.NewsArticle
+import co.hondaya.agent.model.NewsCollection
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

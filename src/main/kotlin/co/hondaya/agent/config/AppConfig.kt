@@ -1,4 +1,4 @@
-package com.bulknews.agent.config
+package co.hondaya.agent.config
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory

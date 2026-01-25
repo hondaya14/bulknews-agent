@@ -1,4 +1,4 @@
-package com.bulknews.agent.model
+package co.hondaya.agent.model
 
 import kotlinx.serialization.Serializable
 

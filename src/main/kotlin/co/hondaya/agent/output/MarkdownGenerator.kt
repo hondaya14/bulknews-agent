@@ -1,6 +1,6 @@
-package com.bulknews.agent.output
+package co.hondaya.agent.output
 
-import com.bulknews.agent.model.NewsCollection
+import co.hondaya.agent.model.NewsCollection
 import mu.KotlinLogging
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

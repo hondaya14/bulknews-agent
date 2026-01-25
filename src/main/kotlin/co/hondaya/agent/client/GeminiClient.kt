@@ -1,4 +1,4 @@
-package com.bulknews.agent.client
+package co.hondaya.agent.client
 
 import io.ktor.client.*
 import io.ktor.client.call.*

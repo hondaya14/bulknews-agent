@@ -4,7 +4,7 @@ plugins {
     application
 }
 
-group = "com.bulknews"
+group = "co.hondaya"
 version = "1.0.0"
 
 repositories {
@@ -48,12 +48,12 @@ kotlin {
 }
 
 application {
-    mainClass.set("com.bulknews.agent.MainKt")
+    mainClass.set("co.hondaya.agent.MainKt")
 }
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "com.bulknews.agent.MainKt"
+        attributes["Main-Class"] = "co.hondaya.agent.MainKt"
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
