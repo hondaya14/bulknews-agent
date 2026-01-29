@@ -8,6 +8,7 @@
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -29,6 +30,10 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.jsoup)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.koog.agents)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -40,7 +45,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.AppKt"
+    mainClass = "co.hondaya.AppKt"
 }
 
 tasks.named<Test>("test") {
