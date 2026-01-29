@@ -8,7 +8,7 @@ import co.hondaya.model.JsonSupport
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
 import co.hondaya.notifier.FileNotifier
-import co.hondaya.orchestrator.BatchOrchestrator
+import co.hondaya.orchestrator.Orchestrator
 import co.hondaya.publisher.FilePublisher
 import co.hondaya.summarizer.SimpleSummarizer
 import kotlinx.serialization.SerializationException
@@ -17,7 +17,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 
 class AgentApp(
-    private val orchestrator: BatchOrchestrator = defaultOrchestrator()
+    private val orchestrator: Orchestrator = defaultOrchestrator()
 ) {
     fun run() {
         println("Starting..")
@@ -54,9 +54,9 @@ class AgentApp(
         private const val DEFAULT_INPUT = "run_context.json"
         private const val DEFAULT_OUTPUT = "build/output/topic_summaries.json"
 
-        private fun defaultOrchestrator(): BatchOrchestrator {
+        private fun defaultOrchestrator(): Orchestrator {
             val searchGateway = createSearchGateway()
-            return BatchOrchestrator(
+            return Orchestrator(
                 deepResearcher = KoogDeepResearcher(searchGateway),
                 collector = HttpCollector(),
                 summarizer = SimpleSummarizer(),
