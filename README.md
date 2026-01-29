@@ -24,7 +24,7 @@ External dependencies:
 
 ```mermaid
 flowchart LR
-  RC[run_context.json] --> ORCH[orchestrator.BatchOrchestrator]
+  RC[run_context.json] --> ORCH[orchestrator.Orchestrator]
   ORCH --> DR[deepresearcher.KoogDeepResearcher]
   DR --> SG[deepresearcher.SearchGateway]
   ORCH --> COL[collector.HttpCollector]
@@ -41,7 +41,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
   participant App as AgentApp
-  participant Orchestrator as BatchOrchestrator
+  participant Orchestrator as Orchestrator
   participant Researcher as KoogDeepResearcher
   participant Search as SearchGateway
   participant Collector as HttpCollector
