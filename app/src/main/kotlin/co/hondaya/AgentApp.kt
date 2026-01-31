@@ -7,7 +7,9 @@ import co.hondaya.deepresearcher.SerperSearchGateway
 import co.hondaya.model.JsonSupport
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
+import co.hondaya.notifier.ChainedNotifier
 import co.hondaya.notifier.FileNotifier
+import co.hondaya.notifier.SlackNotifier
 import co.hondaya.orchestrator.Orchestrator
 import co.hondaya.publisher.FilePublisher
 import co.hondaya.summarizer.SimpleSummarizer
@@ -61,8 +63,22 @@ class AgentApp(
                 collector = HttpCollector(),
                 summarizer = SimpleSummarizer(),
                 publisher = FilePublisher(),
-                notifier = FileNotifier()
+                notifier = createNotifier()
             )
+        }
+
+        private fun createNotifier(): co.hondaya.notifier.Notifier {
+            val file = FileNotifier()
+            val slackEnabled = !System.getenv("BULKNEWS_SLACK_TOKEN").isNullOrBlank() &&
+                !System.getenv("BULKNEWS_SLACK_CHANNEL").isNullOrBlank()
+            val slackEnabledAlt = !System.getenv("SLACK_BOT_TOKEN").isNullOrBlank() &&
+                !System.getenv("SLACK_CHANNEL").isNullOrBlank()
+
+            return if (slackEnabled || slackEnabledAlt) {
+                ChainedNotifier(listOf(file, SlackNotifier()))
+            } else {
+                file
+            }
         }
 
         private fun createSearchGateway(): co.hondaya.deepresearcher.SearchGateway {
