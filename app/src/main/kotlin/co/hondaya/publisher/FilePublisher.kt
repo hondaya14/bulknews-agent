@@ -1,9 +1,9 @@
 package co.hondaya.publisher
 
-import co.hondaya.model.JsonSupport
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
-import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.nio.charset.StandardCharsets
 
@@ -17,10 +17,7 @@ class FilePublisher(
         val jsonPath = File(dir, "topic_summaries.json").path
         val markdownPath = File(dir, "topic_summaries.md").path
 
-        val jsonPayload = JsonSupport.instance.encodeToString(
-            ListSerializer(TopicSummary.serializer()),
-            summaries
-        )
+        val jsonPayload = Json.encodeToString<List<TopicSummary>>(summaries)
         File(jsonPath).writeText(jsonPayload, StandardCharsets.UTF_8)
         File(markdownPath).writeText(toMarkdown(context, summaries), StandardCharsets.UTF_8)
 
@@ -82,7 +79,7 @@ class FilePublisher(
     companion object {
         private fun resolveOutputDir(): String {
             return System.getenv("BULKNEWS_OUTPUT_DIR")?.takeIf { it.isNotBlank() }
-                ?: "build/output"
+                ?: error("Environment variable BULKNEWS_OUTPUT_DIR is required.")
         }
     }
 }
