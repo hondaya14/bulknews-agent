@@ -6,6 +6,7 @@ kotlinx-serialization = "1.8.0"
 coroutines = "1.10.1"
 koog = "0.6.0"
 slack = "1.45.3"
+mockk = "1.13.12"
 
 [libraries]
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter-engine" }
@@ -14,6 +15,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
 slack-api-client = { module = "com.slack.api:slack-api-client", version.ref = "slack" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

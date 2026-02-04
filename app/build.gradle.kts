@@ -25,6 +25,7 @@ dependencies {
 
     // Use the JUnit 5 integration.
     testImplementation(libs.junit.jupiter.engine)
+    testImplementation(libs.mockk)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
