@@ -2,15 +2,13 @@ package co.hondaya
 
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
-import co.hondaya.notifier.SlackNotifier
+import co.hondaya.notifier.WebhookNotifier
 import co.hondaya.orchestrator.Orchestrator
 import co.hondaya.publisher.FilePublisher
 import co.hondaya.researcher.DeepResearcher
 import co.hondaya.summarizer.SimpleSummarizer
 import java.io.File
 import java.nio.charset.StandardCharsets
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class AgentApp(
@@ -39,7 +37,7 @@ class AgentApp(
                 researcher = DeepResearcher(),
                 summarizer = SimpleSummarizer(),
                 publisher = FilePublisher(),
-                notifier = SlackNotifier()
+                notifier = WebhookNotifier()
             )
         }
     }
