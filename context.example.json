@@ -1,0 +1,8 @@
+{
+  "topics": [
+    "Kotlin 2.x compiler",
+    "distributed systems design trends"
+  ],
+  "time_window": "past 7 days",
+  "max_items_per_topic": 3
+}
