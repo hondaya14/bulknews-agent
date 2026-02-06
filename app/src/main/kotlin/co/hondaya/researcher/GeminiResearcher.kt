@@ -68,31 +68,45 @@ class GeminiResearcher : Researcher {
         val entries = response.split("---").map { it.trim() }.filter { it.isNotBlank() }
 
         for (entry in entries) {
-            val lines = entry.lines().filter { it.isNotBlank() }
+            val lines = entry.lines()
             var url: String? = null
             var title: String? = null
-            var snippet: String? = null
+            val snippetLines = mutableListOf<String>()
+            var currentField: String? = null
 
             for (line in lines) {
+                val trimmedLine = line.trim()
+                if (trimmedLine.isBlank()) continue
+
                 when {
-                    line.startsWith("URL:", ignoreCase = true) -> {
-                        url = line.substringAfter("URL:", "").trim()
+                    trimmedLine.startsWith("URL:", ignoreCase = true) -> {
+                        url = trimmedLine.substringAfter("URL:").trim().takeIf { it.isNotBlank() }
+                        currentField = "URL"
                     }
-                    line.startsWith("TITLE:", ignoreCase = true) -> {
-                        title = line.substringAfter("TITLE:", "").trim()
+                    trimmedLine.startsWith("TITLE:", ignoreCase = true) -> {
+                        title = trimmedLine.substringAfter("TITLE:").trim().takeIf { it.isNotBlank() }
+                        currentField = "TITLE"
                     }
-                    line.startsWith("SNIPPET:", ignoreCase = true) -> {
-                        snippet = line.substringAfter("SNIPPET:", "").trim()
+                    trimmedLine.startsWith("SNIPPET:", ignoreCase = true) -> {
+                        val snippetStart = trimmedLine.substringAfter("SNIPPET:").trim()
+                        if (snippetStart.isNotBlank()) {
+                            snippetLines.add(snippetStart)
+                        }
+                        currentField = "SNIPPET"
+                    }
+                    currentField == "SNIPPET" -> {
+                        // Continuation of snippet on next line
+                        snippetLines.add(trimmedLine)
                     }
                 }
             }
 
-            if (url != null && url.isNotBlank()) {
+            if (url != null) {
                 items.add(
                     ResearchItem(
                         url = url,
                         title = title,
-                        snippet = snippet
+                        snippet = snippetLines.joinToString(" ").takeIf { it.isNotBlank() }
                     )
                 )
             }
