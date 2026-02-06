@@ -16,7 +16,7 @@ class FileNotifier(
         context: RunContext,
         summaries: List<TopicSummary>,
         publishResult: PublishResult
-    ): NotificationResult {
+    ) {
         val payload = NotificationPayload(
             topicCount = summaries.size,
             timeWindow = context.timeWindow,
@@ -28,7 +28,6 @@ class FileNotifier(
         val file = File(outputPath)
         file.parentFile?.mkdirs()
         file.writeText(json, StandardCharsets.UTF_8)
-        return NotificationResult(file.path)
     }
 
     companion object {
