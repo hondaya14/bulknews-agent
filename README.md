@@ -18,13 +18,14 @@ Input/output paths are resolved via environment variables:
 External dependencies:
 
 - `OPENAI_API_KEY`
+- `GOOGLE_API_KEY` - Required for GeminiResearcher to perform web research using Google's Gemini API
 
 ## System Architecture
 
 ```mermaid
 flowchart LR
   RC[run_context.json] --> ORCH[orchestrator.Orchestrator]
-  ORCH --> DR[researcher.DeepResearcher]
+  ORCH --> DR[researcher.GeminiResearcher]
   ORCH --> SUM[summarizer.SimpleSummarizer]
   ORCH --> PUB[publisher.FilePublisher]
   ORCH --> NOTI[notifier.SlackNotifier]
@@ -38,7 +39,7 @@ flowchart LR
 sequenceDiagram
   participant App as AgentApp
   participant Orchestrator as Orchestrator
-  participant Researcher as DeepResearcher
+  participant Researcher as GeminiResearcher
   participant Summarizer as SimpleSummarizer
   participant Publisher as FilePublisher
   participant Notifier as SlackNotifier
