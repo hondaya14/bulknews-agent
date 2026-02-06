@@ -1,10 +1,11 @@
 package co.hondaya.notifier
 
-import co.hondaya.model.JsonSupport
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
 import co.hondaya.publisher.PublishResult
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -31,7 +32,7 @@ class WebhookNotifier(
         val payload = SlackWebhookPayload(
             text = buildMessage(context, summaries, publishResult)
         )
-        val json = JsonSupport.instance.encodeToString(SlackWebhookPayload.serializer(), payload)
+        val json = Json.encodeToString(payload)
         val request = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .timeout(Duration.ofSeconds(15))
