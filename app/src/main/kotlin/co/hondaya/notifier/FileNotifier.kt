@@ -1,10 +1,11 @@
 package co.hondaya.notifier
 
-import co.hondaya.model.JsonSupport
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
 import co.hondaya.publisher.PublishResult
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.nio.charset.StandardCharsets
 
@@ -23,7 +24,7 @@ class FileNotifier(
             jsonPath = publishResult.jsonPath,
             markdownPath = publishResult.markdownPath
         )
-        val json = JsonSupport.instance.encodeToString(NotificationPayload.serializer(), payload)
+        val json = Json.encodeToString(payload)
         val file = File(outputPath)
         file.parentFile?.mkdirs()
         file.writeText(json, StandardCharsets.UTF_8)
@@ -33,7 +34,7 @@ class FileNotifier(
     companion object {
         private fun resolveOutputPath(): String {
             return System.getenv("BULKNEWS_NOTIFY_OUTPUT")?.takeIf { it.isNotBlank() }
-                ?: "build/output/notification.json"
+                ?: error("Environment variable BULKNEWS_NOTIFY_OUTPUT is required.")
         }
     }
 }

@@ -1,63 +1,49 @@
 package co.hondaya.summarizer
 
-import co.hondaya.collector.CollectedArticle
 import co.hondaya.model.ArticleSummary
 import co.hondaya.model.KeyPoint
+import co.hondaya.researcher.ResearchItem
 
 class SimpleSummarizer : Summarizer {
     override fun summarize(
         topic: String,
         timeWindow: String,
-        articles: List<CollectedArticle>
+        items: List<ResearchItem>
     ): List<ArticleSummary> {
-        if (articles.isEmpty()) {
+        if (items.isEmpty()) {
             return listOf(failSafeArticle())
         }
 
-        return articles.map { article ->
-            val title = article.title ?: article.url
-            val tldr = buildTldr(article)
-            val keyPoints = buildKeyPoints(article)
+        return items.map { item ->
+            val title = item.title ?: item.url
+            val tldr = buildTldr(item)
+            val keyPoints = buildKeyPoints(item)
             ArticleSummary(
                 title = title,
                 tldr = tldr.ifEmpty { listOf(failSafeLine()) },
                 keyPoints = keyPoints,
                 whyItMatters = null,
-                sources = listOf(article.url)
+                sources = listOf(item.url)
             )
         }
     }
 
-    private fun buildTldr(article: CollectedArticle): List<String> {
-        val lines = mutableListOf<String>()
-        article.description?.let { desc ->
-            lines.add(desc.trim())
-        }
-        if (lines.size < 2) {
-            article.firstParagraph?.let { para ->
-                if (lines.none { it == para }) {
-                    lines.add(para.trim())
-                }
-            }
-        }
-        return lines.take(2)
+    private fun buildTldr(item: ResearchItem): List<String> {
+        val snippet = item.snippet?.trim().orEmpty()
+        return if (snippet.isBlank()) emptyList() else listOf(snippet).take(2)
     }
 
-    private fun buildKeyPoints(article: CollectedArticle): List<KeyPoint> {
-        val candidates = mutableListOf<String>()
-        article.description?.let { desc ->
-            candidates.addAll(splitSentences(desc))
-        }
-        article.firstParagraph?.let { para ->
-            candidates.addAll(splitSentences(para))
-        }
+    private fun buildKeyPoints(item: ResearchItem): List<KeyPoint> {
+        val candidates = item.snippet
+            ?.let { splitSentences(it) }
+            .orEmpty()
 
         return candidates
             .map { it.trim() }
             .filter { it.isNotBlank() }
             .distinct()
             .take(3)
-            .map { KeyPoint(text = it, sources = listOf(article.url)) }
+            .map { KeyPoint(text = it, sources = listOf(item.url)) }
     }
 
     private fun splitSentences(text: String): List<String> {

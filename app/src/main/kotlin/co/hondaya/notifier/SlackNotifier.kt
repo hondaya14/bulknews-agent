@@ -8,28 +8,20 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest
 
 class SlackNotifier(
     private val slack: Slack = Slack.getInstance(),
-    private val token: String? = resolveToken(),
-    private val channel: String? = resolveChannel()
+    private val token: String = resolveToken(),
+    private val channel: String = resolveChannel()
 ) : Notifier {
     override fun notify(
         context: RunContext,
         summaries: List<TopicSummary>,
         publishResult: PublishResult
     ): NotificationResult {
-        val tokenValue = token?.takeIf { it.isNotBlank() }
-        val channelValue = channel?.takeIf { it.isNotBlank() }
-
-        if (tokenValue == null || channelValue == null) {
-            System.err.println("SlackNotifier skipped (missing token/channel).")
-            return NotificationResult(outputPath = "slack://skipped")
-        }
-
         val text = buildMessage(context, summaries, publishResult)
         return try {
-            val client = slack.methods(tokenValue)
+            val client = slack.methods(token)
             val response = client.chatPostMessage(
                 ChatPostMessageRequest.builder()
-                    .channel(channelValue)
+                    .channel(channel)
                     .text(text)
                     .build()
             )
@@ -37,7 +29,7 @@ class SlackNotifier(
                 System.err.println("SlackNotifier failed: ${response.error}")
             }
             val ts = response.ts ?: "unknown"
-            NotificationResult(outputPath = "slack://$channelValue/$ts")
+            NotificationResult(outputPath = "slack://$channel/$ts")
         } catch (ex: Exception) {
             System.err.println("SlackNotifier exception: ${ex.message}")
             NotificationResult(outputPath = "slack://error")
@@ -69,14 +61,16 @@ class SlackNotifier(
     }
 
     companion object {
-        private fun resolveToken(): String? {
+        private fun resolveToken(): String {
             return System.getenv("BULKNEWS_SLACK_TOKEN")?.takeIf { it.isNotBlank() }
                 ?: System.getenv("SLACK_BOT_TOKEN")?.takeIf { it.isNotBlank() }
+                ?: error("Slack token is required. Set BULKNEWS_SLACK_TOKEN or SLACK_BOT_TOKEN.")
         }
 
-        private fun resolveChannel(): String? {
+        private fun resolveChannel(): String {
             return System.getenv("BULKNEWS_SLACK_CHANNEL")?.takeIf { it.isNotBlank() }
                 ?: System.getenv("SLACK_CHANNEL")?.takeIf { it.isNotBlank() }
+                ?: error("Slack channel is required. Set BULKNEWS_SLACK_CHANNEL or SLACK_CHANNEL.")
         }
     }
 }

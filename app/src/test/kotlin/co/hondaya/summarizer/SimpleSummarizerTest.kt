@@ -1,6 +1,6 @@
 package co.hondaya.summarizer
 
-import co.hondaya.collector.CollectedArticle
+import co.hondaya.researcher.ResearchItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -12,7 +12,7 @@ class SimpleSummarizerTest {
         val result = summarizer.summarize(
             topic = "Kotlin",
             timeWindow = "past 24 hours",
-            articles = emptyList()
+            items = emptyList()
         )
 
         assertEquals(1, result.size)
@@ -24,17 +24,16 @@ class SimpleSummarizerTest {
     @Test
     fun `summarizes basic article content`() {
         val summarizer = SimpleSummarizer()
-        val article = CollectedArticle(
+        val item = ResearchItem(
             url = "https://example.com",
             title = "Example",
-            description = "Example description.",
-            firstParagraph = "First paragraph."
+            snippet = "Example description. First paragraph."
         )
 
         val result = summarizer.summarize(
             topic = "Example",
             timeWindow = "past 24 hours",
-            articles = listOf(article)
+            items = listOf(item)
         )
 
         assertEquals("Example", result.first().title)

@@ -10,30 +10,26 @@ Batch app that reads a run context JSON and emits topic summaries as JSON.
 
 Input/output paths are resolved via environment variables:
 
-- `BULKNEWS_INPUT` (default: `run_context.json`)
-- `BULKNEWS_OUTPUT` (default: `build/output/topic_summaries.json`)
-- `BULKNEWS_OUTPUT_DIR` (default: `build/output`)
-- `BULKNEWS_NOTIFY_OUTPUT` (default: `build/output/notification.json`)
+- `BULKNEWS_INPUT`
+- `BULKNEWS_OUTPUT`
+- `BULKNEWS_OUTPUT_DIR`
+- `BULKNEWS_NOTIFY_OUTPUT`
 
 External dependencies:
 
-- `OPENAI_API_KEY` (Koog deep research planning)
-- `SERPER_API_KEY` (search results; Serper-compatible)
+- `OPENAI_API_KEY`
 
 ## System Architecture
 
 ```mermaid
 flowchart LR
   RC[run_context.json] --> ORCH[orchestrator.Orchestrator]
-  ORCH --> DR[deepresearcher.KoogDeepResearcher]
-  DR --> SG[deepresearcher.SearchGateway]
-  ORCH --> COL[collector.HttpCollector]
+  ORCH --> DR[researcher.DeepResearcher]
   ORCH --> SUM[summarizer.SimpleSummarizer]
   ORCH --> PUB[publisher.FilePublisher]
-  ORCH --> NOTI[notifier.FileNotifier]
+  ORCH --> NOTI[notifier.SlackNotifier]
   PUB --> OUTJSON[topic_summaries.json]
   PUB --> OUTMD[topic_summaries.md]
-  NOTI --> NOTIF[notification.json]
 ```
 
 ## Batch Flow
@@ -42,20 +38,14 @@ flowchart LR
 sequenceDiagram
   participant App as AgentApp
   participant Orchestrator as Orchestrator
-  participant Researcher as KoogDeepResearcher
-  participant Search as SearchGateway
-  participant Collector as HttpCollector
+  participant Researcher as DeepResearcher
   participant Summarizer as SimpleSummarizer
   participant Publisher as FilePublisher
-  participant Notifier as FileNotifier
+  participant Notifier as SlackNotifier
 
   App->>Orchestrator: run(context)
   Orchestrator->>Researcher: research(topic, timeWindow)
-  Researcher->>Search: search(queries)
-  Search-->>Researcher: urls
-  Orchestrator->>Collector: collect(urls)
-  Collector-->>Orchestrator: collected articles
-  Orchestrator->>Summarizer: summarize(articles)
+  Orchestrator->>Summarizer: summarize(items)
   Summarizer-->>Orchestrator: article summaries
   Orchestrator->>Publisher: publish(summaries)
   Publisher-->>Orchestrator: publish result

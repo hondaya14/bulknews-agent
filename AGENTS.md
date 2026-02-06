@@ -174,7 +174,6 @@ sources（URL配列）
 8. 実行・外部依存
 
 - OpenAI API Key: `OPENAI_API_KEY`
-- 検索 API Key（Serper 互換）: `SERPER_API_KEY`
 
 9. 禁止事項・制約
 

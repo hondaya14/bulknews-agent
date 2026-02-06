@@ -1,4 +1,4 @@
-package co.hondaya.deepresearcher
+package co.hondaya.researcher
 
 data class ResearchItem(
     val url: String,
@@ -11,6 +11,6 @@ data class ResearchResult(
     val notes: String? = null
 )
 
-interface DeepResearcher {
+interface Researcher {
     fun research(topic: String, timeWindow: String, maxItems: Int): ResearchResult
 }
