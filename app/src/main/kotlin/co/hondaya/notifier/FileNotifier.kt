@@ -2,7 +2,6 @@ package co.hondaya.notifier
 
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
-import co.hondaya.publisher.PublishResult
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -14,15 +13,11 @@ class FileNotifier(
 ) : Notifier {
     override fun notify(
         context: RunContext,
-        summaries: List<TopicSummary>,
-        publishResult: PublishResult
+        summaries: List<TopicSummary>
     ) {
         val payload = NotificationPayload(
             topicCount = summaries.size,
-            timeWindow = context.timeWindow,
-            outputDir = publishResult.outputDir,
-            jsonPath = publishResult.jsonPath,
-            markdownPath = publishResult.markdownPath
+            timeWindow = context.timeWindow
         )
         val json = Json.encodeToString(payload)
         val file = File(outputPath)
@@ -41,8 +36,5 @@ class FileNotifier(
 @Serializable
 private data class NotificationPayload(
     val topicCount: Int,
-    val timeWindow: String,
-    val outputDir: String,
-    val jsonPath: String,
-    val markdownPath: String
+    val timeWindow: String
 )
