@@ -15,8 +15,7 @@ data class RunContext(
 @Serializable
 data class TopicSummary(
     val topic: String,
-    @SerialName("time_window")
-    val timeWindow: String,
+    val summary: String,
     val articles: List<ArticleSummary>
 )
 

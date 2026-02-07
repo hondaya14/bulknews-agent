@@ -15,9 +15,7 @@ class GeminiResearcher : Researcher {
     private val apiKey: String = System.getenv("GOOGLE_API_KEY")
         ?: error("Environment variable GOOGLE_API_KEY is required for GeminiResearcher.")
     
-    private val systemPrompt: String by lazy {
-        loadSystemPrompt()
-    }
+    private val systemPrompt: String by lazy { loadSystemPrompt() }
 
     override fun research(topic: String, timeWindow: String, maxItems: Int): ResearchResult {
         return runBlocking {
