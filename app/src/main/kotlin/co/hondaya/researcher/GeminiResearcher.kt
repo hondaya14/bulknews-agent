@@ -1,8 +1,14 @@
 package co.hondaya.researcher
 
 import ai.koog.agents.core.agent.AIAgent
+import ai.koog.agents.core.agent.config.AIAgentConfig
+import ai.koog.agents.core.dsl.builder.forwardTo
+import ai.koog.agents.core.dsl.builder.strategy
+import ai.koog.agents.core.dsl.extension.nodeLLMRequestStructured
+import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.google.GoogleModels
 import ai.koog.prompt.executor.llms.all.simpleGoogleAIExecutor
+import ai.koog.prompt.text.text
 import kotlinx.coroutines.runBlocking
 
 class GeminiResearcher : Researcher {
@@ -16,17 +22,35 @@ class GeminiResearcher : Researcher {
     override fun research(topic: String, timeWindow: String, maxItems: Int): ResearchResult {
         return runBlocking {
             try {
-                val agent = AIAgent(
-                    promptExecutor = simpleGoogleAIExecutor(apiKey),
-                    llmModel = GoogleModels.Gemini2_0Flash,
-                    systemPrompt = systemPrompt,
-                    temperature = 0.3
+                val executor = simpleGoogleAIExecutor(apiKey)
+                
+                val strategy = strategy<String, ResearchResult>("research") {
+                    val prepareRequest by node<String, String> { userPrompt ->
+                        text { +userPrompt }
+                    }
+                    
+                    val getStructuredResult by nodeLLMRequestStructured<ResearchResult>()
+                    
+                    nodeStart then prepareRequest then getStructuredResult
+                    edge(getStructuredResult forwardTo nodeFinish transformed { it.getOrThrow().data })
+                }
+                
+                val agentConfig = AIAgentConfig(
+                    prompt = prompt("research") {
+                        system(systemPrompt)
+                    }.withParams(ai.koog.prompt.params.LLMParams(temperature = 0.3)),
+                    model = GoogleModels.Gemini2_0Flash,
+                    maxAgentIterations = 5
+                )
+                
+                val agent = AIAgent<String, ResearchResult>(
+                    promptExecutor = executor,
+                    strategy = strategy,
+                    agentConfig = agentConfig
                 )
 
                 val userPrompt = buildUserPrompt(topic, timeWindow, maxItems)
-                val response = agent.run(userPrompt)
-
-                parseResearchResponse(response)
+                agent.run(userPrompt)
             } catch (e: Exception) {
                 ResearchResult(
                     items = emptyList(),
@@ -49,62 +73,7 @@ class GeminiResearcher : Researcher {
             Search for $maxItems relevant articles about: "$topic"
             Time window: $timeWindow
             
-            Find high-quality, recent sources and format them as described in the system prompt.
+            Provide the results as a structured list with URLs, titles, and brief snippets.
         """.trimIndent()
-    }
-
-    private fun parseResearchResponse(response: String): ResearchResult {
-        val items = mutableListOf<ResearchItem>()
-        val entries = response.split("---").map { it.trim() }.filter { it.isNotBlank() }
-
-        for (entry in entries) {
-            val lines = entry.lines()
-            var url: String? = null
-            var title: String? = null
-            val snippetLines = mutableListOf<String>()
-            var currentField: String? = null
-
-            for (line in lines) {
-                val trimmedLine = line.trim()
-                if (trimmedLine.isBlank()) continue
-
-                when {
-                    trimmedLine.startsWith("URL:", ignoreCase = true) -> {
-                        url = trimmedLine.substringAfter("URL:").trim().takeIf { it.isNotBlank() }
-                        currentField = "URL"
-                    }
-                    trimmedLine.startsWith("TITLE:", ignoreCase = true) -> {
-                        title = trimmedLine.substringAfter("TITLE:").trim().takeIf { it.isNotBlank() }
-                        currentField = "TITLE"
-                    }
-                    trimmedLine.startsWith("SNIPPET:", ignoreCase = true) -> {
-                        val snippetStart = trimmedLine.substringAfter("SNIPPET:").trim()
-                        if (snippetStart.isNotBlank()) {
-                            snippetLines.add(snippetStart)
-                        }
-                        currentField = "SNIPPET"
-                    }
-                    currentField == "SNIPPET" -> {
-                        // Continuation of snippet on next line
-                        snippetLines.add(trimmedLine)
-                    }
-                }
-            }
-
-            if (url != null) {
-                items.add(
-                    ResearchItem(
-                        url = url,
-                        title = title,
-                        snippet = snippetLines.joinToString(" ").takeIf { it.isNotBlank() }
-                    )
-                )
-            }
-        }
-
-        return ResearchResult(
-            items = items,
-            notes = if (items.isEmpty()) "No items found in response" else null
-        )
     }
 }
