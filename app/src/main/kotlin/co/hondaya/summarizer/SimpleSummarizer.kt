@@ -16,14 +16,15 @@ class SimpleSummarizer : Summarizer {
 
         return items.map { item ->
             val title = item.title ?: item.url
+            val sources = resolveArticleSources(item)
             val tldr = buildTldr(item)
-            val keyPoints = buildKeyPoints(item)
+            val keyPoints = buildKeyPoints(item, sources)
             ArticleSummary(
                 title = title,
                 tldr = tldr.ifEmpty { listOf(failSafeLine()) },
                 keyPoints = keyPoints,
                 whyItMatters = null,
-                sources = listOf(item.url)
+                sources = sources
             )
         }
     }
@@ -33,7 +34,27 @@ class SimpleSummarizer : Summarizer {
         return if (snippet.isBlank()) emptyList() else listOf(snippet).take(2)
     }
 
-    private fun buildKeyPoints(item: ResearchItem): List<KeyPoint> {
+    private fun buildKeyPoints(item: ResearchItem, articleSources: List<String>): List<KeyPoint> {
+        val structured = item.keyPoints
+            .mapNotNull { point ->
+                val text = point.text.trim()
+                if (text.isBlank()) {
+                    return@mapNotNull null
+                }
+                val pointSources = normalizeSources(
+                    if (point.sources.isEmpty()) articleSources else point.sources
+                )
+                if (pointSources.isEmpty()) {
+                    return@mapNotNull null
+                }
+                KeyPoint(text = text, sources = pointSources)
+            }
+            .distinctBy { it.text }
+            .take(7)
+        if (structured.isNotEmpty()) {
+            return structured
+        }
+
         val candidates = item.snippet
             ?.let { splitSentences(it) }
             .orEmpty()
@@ -43,7 +64,23 @@ class SimpleSummarizer : Summarizer {
             .filter { it.isNotBlank() }
             .distinct()
             .take(3)
-            .map { KeyPoint(text = it, sources = listOf(item.url)) }
+            .mapNotNull {
+                if (articleSources.isEmpty()) {
+                    return@mapNotNull null
+                }
+                KeyPoint(text = it, sources = articleSources)
+            }
+    }
+
+    private fun resolveArticleSources(item: ResearchItem): List<String> {
+        return normalizeSources(item.sources + listOf(item.url))
+    }
+
+    private fun normalizeSources(sources: List<String>): List<String> {
+        return sources
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
     }
 
     private fun splitSentences(text: String): List<String> {

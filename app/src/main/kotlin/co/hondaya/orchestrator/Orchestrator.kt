@@ -4,7 +4,6 @@ import co.hondaya.researcher.Researcher
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
 import co.hondaya.notifier.Notifier
-import co.hondaya.publisher.Publisher
 import co.hondaya.summarizer.Summarizer
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -14,7 +13,6 @@ import kotlinx.coroutines.runBlocking
 class Orchestrator(
     private val researcher: Researcher,
     private val summarizer: Summarizer,
-    private val publisher: Publisher,
     private val notifier: Notifier
 ) {
     fun run(context: RunContext): List<TopicSummary> = runBlocking {
@@ -26,15 +24,14 @@ class Orchestrator(
                     val articles = summarizer.summarize(topic, context.timeWindow, items)
                     TopicSummary(
                         topic = topic,
-                        timeWindow = context.timeWindow,
+                        summary = research.notes ?: "",
                         articles = articles
                     )
                 }
             }.awaitAll()
         }
 
-        val publishResult = publisher.publish(context, summaries)
-        notifier.notify(context, summaries, publishResult)
+        notifier.notify(context, summaries)
         summaries
     }
 }

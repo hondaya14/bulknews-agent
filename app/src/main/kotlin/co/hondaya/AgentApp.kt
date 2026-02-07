@@ -4,7 +4,6 @@ import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
 import co.hondaya.notifier.WebhookNotifier
 import co.hondaya.orchestrator.Orchestrator
-import co.hondaya.publisher.FilePublisher
 import co.hondaya.researcher.GeminiResearcher
 import co.hondaya.summarizer.SimpleSummarizer
 import java.io.File
@@ -36,7 +35,6 @@ class AgentApp(
             return Orchestrator(
                 researcher = GeminiResearcher(),
                 summarizer = SimpleSummarizer(),
-                publisher = FilePublisher(),
                 notifier = WebhookNotifier()
             )
         }

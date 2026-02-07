@@ -12,7 +12,6 @@ Input/output paths are resolved via environment variables:
 
 - `BULKNEWS_INPUT`
 - `BULKNEWS_OUTPUT`
-- `BULKNEWS_OUTPUT_DIR`
 - `BULKNEWS_NOTIFY_OUTPUT`
 
 External dependencies:
@@ -24,13 +23,12 @@ External dependencies:
 
 ```mermaid
 flowchart LR
-  RC[run_context.json] --> ORCH[orchestrator.Orchestrator]
+  RC[run_context.json] --> APP[AgentApp]
+  APP --> ORCH[orchestrator.Orchestrator]
   ORCH --> DR[researcher.GeminiResearcher]
   ORCH --> SUM[summarizer.SimpleSummarizer]
-  ORCH --> PUB[publisher.FilePublisher]
-  ORCH --> NOTI[notifier.SlackNotifier]
-  PUB --> OUTJSON[topic_summaries.json]
-  PUB --> OUTMD[topic_summaries.md]
+  ORCH --> NOTI[notifier.WebhookNotifier]
+  APP --> OUTJSON[topic_summaries.json]
 ```
 
 ## Batch Flow
@@ -41,17 +39,15 @@ sequenceDiagram
   participant Orchestrator as Orchestrator
   participant Researcher as GeminiResearcher
   participant Summarizer as SimpleSummarizer
-  participant Publisher as FilePublisher
-  participant Notifier as SlackNotifier
+  participant Notifier as WebhookNotifier
 
   App->>Orchestrator: run(context)
   Orchestrator->>Researcher: research(topic, timeWindow)
   Orchestrator->>Summarizer: summarize(items)
   Summarizer-->>Orchestrator: article summaries
-  Orchestrator->>Publisher: publish(summaries)
-  Publisher-->>Orchestrator: publish result
-  Orchestrator->>Notifier: notify(result)
+  Orchestrator->>Notifier: notify(summaries)
   Notifier-->>Orchestrator: notification result
+  App->>App: write topic_summaries.json
 ```
 
 ## Input (RunContext)

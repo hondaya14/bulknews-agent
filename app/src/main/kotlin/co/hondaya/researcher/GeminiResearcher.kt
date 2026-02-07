@@ -68,10 +68,35 @@ class GeminiResearcher : Researcher {
 
     private fun buildUserPrompt(topic: String, timeWindow: String, maxItems: Int): String {
         return """
-            Search for $maxItems relevant articles about: "$topic"
+            Research topic: "$topic"
             Time window: $timeWindow
-            
-            Provide the results as a structured list with URLs, titles, and brief snippets.
+            Max items: $maxItems
+
+            Return strict JSON only (no markdown, no prose outside JSON).
+            Output schema:
+            {
+              "items": [
+                {
+                  "url": "https://...",
+                  "title": "string or null",
+                  "snippet": "short factual summary or null",
+                  "key_points": [
+                    {
+                      "text": "verifiable factual point; if inferred, prefix with 推測: / 考察: / 可能性:",
+                      "sources": ["https://source-url"]
+                    }
+                  ],
+                  "sources": ["https://source-url"]
+                }
+              ],
+              "notes": "optional constraints/errors"
+            }
+
+            Rules:
+            - Include at most $maxItems items.
+            - Every key point must include at least one source URL.
+            - Prefer primary sources (official blog, release notes, RFC, spec, paper).
+            - Do not include unverifiable claims.
         """.trimIndent()
     }
 }

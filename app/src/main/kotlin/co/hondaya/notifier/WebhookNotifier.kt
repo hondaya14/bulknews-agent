@@ -2,7 +2,6 @@ package co.hondaya.notifier
 
 import co.hondaya.model.RunContext
 import co.hondaya.model.TopicSummary
-import co.hondaya.publisher.PublishResult
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,15 +21,14 @@ class WebhookNotifier(
 ) : Notifier {
     override fun notify(
         context: RunContext,
-        summaries: List<TopicSummary>,
-        publishResult: PublishResult
+        summaries: List<TopicSummary>
     ) {
         if (disabled) {
             return
         }
 
         val payload = SlackWebhookPayload(
-            text = buildMessage(context, summaries, publishResult)
+            text = buildMessage(context, summaries)
         )
         val json = Json.encodeToString(payload)
         val request = HttpRequest.newBuilder()
@@ -52,8 +50,7 @@ class WebhookNotifier(
 
     private fun buildMessage(
         context: RunContext,
-        summaries: List<TopicSummary>,
-        publishResult: PublishResult
+        summaries: List<TopicSummary>
     ): String {
         val topicLines = summaries
             .sortedBy { it.topic }
@@ -63,11 +60,6 @@ class WebhookNotifier(
             appendLine("Bulknews run completed.")
             appendLine("Time window: ${context.timeWindow}")
             appendLine("Topics: ${summaries.size}")
-            appendLine()
-            appendLine("Outputs:")
-            appendLine("- dir: ${publishResult.outputDir}")
-            appendLine("- json: ${publishResult.jsonPath}")
-            appendLine("- md: ${publishResult.markdownPath}")
             appendLine()
             appendLine("Topic breakdown:")
             appendLine(topicLines.ifBlank { "- (none)" })
