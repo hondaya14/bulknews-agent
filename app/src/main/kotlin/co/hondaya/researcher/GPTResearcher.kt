@@ -6,41 +6,41 @@ import ai.koog.agents.core.dsl.builder.forwardTo
 import ai.koog.agents.core.dsl.builder.strategy
 import ai.koog.agents.core.dsl.extension.nodeLLMRequestStructured
 import ai.koog.prompt.dsl.prompt
-import ai.koog.prompt.executor.clients.google.GoogleModels
-import ai.koog.prompt.executor.llms.all.simpleGoogleAIExecutor
+import ai.koog.prompt.executor.clients.openai.OpenAIModels
+import ai.koog.prompt.executor.llms.all.simpleOpenAIExecutor
+import ai.koog.prompt.params.LLMParams
 import ai.koog.prompt.text.text
 import kotlinx.coroutines.runBlocking
 
-class GeminiResearcher : Researcher {
-    private val apiKey: String = System.getenv("GOOGLE_API_KEY")
-        ?: error("Environment variable GOOGLE_API_KEY is required for GeminiResearcher.")
-    
+class GPTResearcher : Researcher {
+    private val apiKey: String = System.getenv("OPENAI_API_KEY")
+        ?: error("Environment variable OPENAI_API_KEY is required for GPTResearcher.")
+
     private val systemPrompt: String by lazy { loadSystemPrompt() }
 
     override fun research(topic: String, timeWindow: String, maxItems: Int): ResearchResult {
         return runBlocking {
             try {
-                val executor = simpleGoogleAIExecutor(apiKey)
-                
+                val executor = simpleOpenAIExecutor(apiKey)
+
                 val strategy = strategy<String, ResearchResult>("research") {
                     val prepareRequest by node<String, String> { userPrompt ->
                         text { +userPrompt }
                     }
-                    
+
                     val getStructuredResult by nodeLLMRequestStructured<ResearchResult>()
-                    
+
                     nodeStart then prepareRequest then getStructuredResult
                     edge(getStructuredResult forwardTo nodeFinish transformed { it.getOrThrow().data })
                 }
-                
+
                 val agentConfig = AIAgentConfig(
-                    prompt = prompt("research") {
-                        system(systemPrompt)
-                    }.withParams(ai.koog.prompt.params.LLMParams(temperature = 0.3)),
-                    model = GoogleModels.Gemini2_5Flash,
+                    prompt = prompt("research") { system(systemPrompt) }
+                        .withParams(LLMParams(temperature = 0.3)),
+                    model = OpenAIModels.Chat.GPT5_2,
                     maxAgentIterations = 5
                 )
-                
+
                 val agent = AIAgent<String, ResearchResult>(
                     promptExecutor = executor,
                     strategy = strategy,
