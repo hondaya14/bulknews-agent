@@ -16,8 +16,7 @@ class FileNotifier(
         summaries: List<TopicSummary>
     ) {
         val payload = NotificationPayload(
-            topicCount = summaries.size,
-            timeWindow = context.timeWindow
+            text = NotificationMessageFormatter.build(context, summaries)
         )
         val json = Json.encodeToString(payload)
         val file = File(outputPath)
@@ -35,6 +34,5 @@ class FileNotifier(
 
 @Serializable
 private data class NotificationPayload(
-    val topicCount: Int,
-    val timeWindow: String
+    val text: String
 )

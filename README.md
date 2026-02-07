@@ -1,6 +1,6 @@
 # bulknews-agent
 
-Batch app that reads a run context JSON and emits topic summaries as JSON.
+Batch app that reads a run context JSON and sends topic summaries through notifier messages.
 
 ## Usage
 
@@ -11,13 +11,13 @@ Batch app that reads a run context JSON and emits topic summaries as JSON.
 Input/output paths are resolved via environment variables:
 
 - `BULKNEWS_INPUT`
-- `BULKNEWS_OUTPUT`
-- `BULKNEWS_NOTIFY_OUTPUT`
+- `BULKNEWS_WEBHOOK_URL`
+- `BULKNEWS_NOTIFY_OUTPUT` (only when `FileNotifier` is wired)
 
 External dependencies:
 
 - `OPENAI_API_KEY`
-- `GOOGLE_API_KEY` - Required for GeminiResearcher to perform web research using Google's Gemini API
+- `GOOGLE_API_KEY` - Optional, only required if you wire `GeminiResearcher`
 
 ## System Architecture
 
@@ -25,10 +25,9 @@ External dependencies:
 flowchart LR
   RC[run_context.json] --> APP[AgentApp]
   APP --> ORCH[orchestrator.Orchestrator]
-  ORCH --> DR[researcher.GeminiResearcher]
+  ORCH --> DR[researcher.GPTResearcher]
   ORCH --> SUM[summarizer.SimpleSummarizer]
   ORCH --> NOTI[notifier.WebhookNotifier]
-  APP --> OUTJSON[topic_summaries.json]
 ```
 
 ## Batch Flow
@@ -37,7 +36,7 @@ flowchart LR
 sequenceDiagram
   participant App as AgentApp
   participant Orchestrator as Orchestrator
-  participant Researcher as GeminiResearcher
+  participant Researcher as GPTResearcher
   participant Summarizer as SimpleSummarizer
   participant Notifier as WebhookNotifier
 
@@ -45,9 +44,8 @@ sequenceDiagram
   Orchestrator->>Researcher: research(topic, timeWindow)
   Orchestrator->>Summarizer: summarize(items)
   Summarizer-->>Orchestrator: article summaries
-  Orchestrator->>Notifier: notify(summaries)
+  Orchestrator->>Notifier: notify(context, summaries)
   Notifier-->>Orchestrator: notification result
-  App->>App: write topic_summaries.json
 ```
 
 ## Input (RunContext)

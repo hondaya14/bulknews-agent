@@ -19,17 +19,10 @@ class WebhookNotifier(
     private val url: String = resolveUrl(),
     private val disabled: Boolean = false
 ) : Notifier {
-    override fun notify(
-        context: RunContext,
-        summaries: List<TopicSummary>
-    ) {
-        if (disabled) {
-            return
-        }
+    override fun notify(context: RunContext, summaries: List<TopicSummary>) {
+        if (disabled) return
 
-        val payload = SlackWebhookPayload(
-            text = buildMessage(context, summaries)
-        )
+        val payload = SlackWebhookPayload(text = buildMessage(context, summaries))
         val json = Json.encodeToString(payload)
         val request = HttpRequest.newBuilder()
             .uri(URI.create(url))
@@ -52,22 +45,12 @@ class WebhookNotifier(
         context: RunContext,
         summaries: List<TopicSummary>
     ): String {
-        val topicLines = summaries
-            .sortedBy { it.topic }
-            .joinToString(separator = "\n") { "- ${it.topic} (${it.articles.size} articles)" }
-
-        return buildString {
-            appendLine("Bulknews run completed.")
-            appendLine("Time window: ${context.timeWindow}")
-            appendLine("Topics: ${summaries.size}")
-            appendLine()
-            appendLine("Topic breakdown:")
-            appendLine(topicLines.ifBlank { "- (none)" })
-        }.trimEnd()
+        return NotificationMessageFormatter.build(context, summaries)
     }
 }
 
 @Serializable
 private data class SlackWebhookPayload(
-    val text: String
+    val text: String,
+    val mrkdwn: Boolean = true
 )
