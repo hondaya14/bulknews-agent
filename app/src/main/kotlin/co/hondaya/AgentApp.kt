@@ -5,7 +5,7 @@ import co.hondaya.model.TopicSummary
 import co.hondaya.notifier.WebhookNotifier
 import co.hondaya.orchestrator.Orchestrator
 import co.hondaya.publisher.FilePublisher
-import co.hondaya.researcher.DeepResearcher
+import co.hondaya.researcher.GeminiResearcher
 import co.hondaya.summarizer.SimpleSummarizer
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -34,7 +34,7 @@ class AgentApp(
     companion object {
         fun defaultOrchestrator(): Orchestrator {
             return Orchestrator(
-                researcher = DeepResearcher(),
+                researcher = GeminiResearcher(),
                 summarizer = SimpleSummarizer(),
                 publisher = FilePublisher(),
                 notifier = WebhookNotifier()
